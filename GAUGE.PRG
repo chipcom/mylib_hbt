@@ -19,14 +19,14 @@
 
 #define B_BOXLINES      "┌─┐│┘─└│"
 
-***** определение индикатора
+***** 27.03.17 определение индикатора
 FUNCTION GaugeNew( nTop, nLeft, cColor, cTitul, cProcent )
 LOCAL aHandle[B_LEN]
-DEFAULT nTop TO 20, nLeft TO 10, ctitul TO "", cProcent TO .f.
+DEFAULT nTop TO maxrow()-4, nLeft TO 10, ctitul TO "", cProcent TO .f.
 aHandle[B_TOP]        := nTop
 aHandle[B_LEFT]       := nLeft
 aHandle[B_BOTTOM]     := nTop+2
-aHandle[B_RIGHT]      := 79-nLeft
+aHandle[B_RIGHT]      := maxcol()-nLeft
 aHandle[B_BACKCOLOR]  := color0
 aHandle[B_BARCOLOR]   := color0
 aHandle[B_TITULCOLOR] := color0
@@ -56,21 +56,16 @@ ENDIF
 if aHandle[B_DISPLAYNUM]
   aHandle[B_DISPLAYNUM] := cProcent
 endif
-aHandle[B_SCREEN] := save_box(aHandle[B_TOP], 0, aHandle[B_TOP]+3, 79)
+aHandle[B_SCREEN] := save_box(aHandle[B_TOP], 0, aHandle[B_TOP]+3, maxcol())
 RETURN( aHandle )
 
-/***
-*  GaugeDisplay( aGauge ) --> aGauge
-*  Отображение индикатора на экране в соответствии со значениями из массива
-*/
+***** 27.03.17 Отображение индикатора на экране в соответствии со значениями из массива
 FUNCTION GaugeDisplay( aHandle )
 LOCAL nCenter := (aHandle[B_RIGHT]-aHandle[B_LEFT]+1-8)/2+aHandle[B_LEFT]
 LOCAL cOldColor := SETCOLOR( aHandle[ B_BACKCOLOR ] )
-@ aHandle[B_TOP], aHandle[B_LEFT] CLEAR TO ;
-               aHandle[B_BOTTOM], aHandle[B_RIGHT]
+@ aHandle[B_TOP], aHandle[B_LEFT] CLEAR TO aHandle[B_BOTTOM], aHandle[B_RIGHT]
 put_shadow(aHandle[B_TOP],aHandle[B_LEFT],aHandle[B_BOTTOM],aHandle[B_RIGHT])
-@ aHandle[B_TOP], aHandle[B_LEFT], ;
-               aHandle[B_BOTTOM], aHandle[B_RIGHT] BOX B_BOXLINES
+@ aHandle[B_TOP], aHandle[B_LEFT], aHandle[B_BOTTOM], aHandle[B_RIGHT] BOX B_BOXLINES
 @ aHandle[B_TOP]+1, aHandle[B_LEFT]+1 say ;
              replicate(chr(176),aHandle[B_RIGHT]-aHandle[B_LEFT]-1) ;
              color aHandle[B_BARCOLOR]
@@ -88,10 +83,7 @@ aHandle[B_RATIO]   := (aHandle[B_RIGHT]) - (aHandle[B_LEFT] + 1)
 GaugeUpdate( aHandle, aHandle[B_PERCENT] )
 RETURN( aHandle )
 
-/***
-*  GaugeUpdate( aGauge, nPercent ) --> aGauge
-*  Обновление индикатора в соответствии с новым процентным соотношением
-*/
+***** 27.03.17 Обновление индикатора в соответствии с новым процентным соотношением
 FUNCTION GaugeUpdate( aHandle, nPercent )
 LOCAL cOldColor := SETCOLOR( aHandle[B_BARCOLOR] ), nRow, nCols
 if nPercent != aHandle[B_PERCENT]
@@ -103,8 +95,7 @@ if nPercent != aHandle[B_PERCENT]
   ENDIF
   nCols := ROUND( nPercent * aHandle[B_RATIO], 0 )
   FOR nRow := 1 TO (aHandle[B_BOTTOM]-aHandle[B_TOP]-1)
-    @ nRow+aHandle[B_TOP],aHandle[B_LEFT]+1 ;
-                    SAY REPLICATE(aHandle[B_BARCHAR],nCols)
+    @ nRow+aHandle[B_TOP],aHandle[B_LEFT]+1 SAY REPLICATE(aHandle[B_BARCHAR],nCols)
   NEXT
 endif
 SETCOLOR( cOldColor )

@@ -93,6 +93,7 @@ SelItem=0
 .\{Proj}\HARD_ERR.PRG
 .\{Proj}\HELP__.PRG
 .\{Proj}\HELP_NEW.PRG
+.\{Proj}\ICON.PRG
 .\{Proj}\IEVAL.PRG
 .\{Proj}\INDEX_.PRG
 .\{Proj}\INI.PRG

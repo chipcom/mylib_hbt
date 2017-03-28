@@ -1,7 +1,7 @@
 #include "function.ch"
 #include "edit_spr.ch"
 
-***** битовое меню по двумерному массиву
+***** 08.03.17 битовое меню по двумерному массиву
 Function bit_popup(r1,c1,in_array,ast_array,lcolor,i_element,titul,titul_color)
 Local r2, c2, nr := 0, nl := 0, t_mas := {}, buf, buf1, i, out_array
 DEFAULT r1 TO T_ROW, c1 TO T_COL+5, i_element TO 1
@@ -14,11 +14,11 @@ endif
 nl += 5
 r2 := r1 + nr + 1
 c2 := c1 + nl + 1
-if c2 > 77
-  c2 := 77 ; c1 := 76 - nl
+if c2 > maxcol()-2
+  c2 := maxcol()-2 ; c1 := maxcol()-3 - nl
   if c1 < 0 ; c1 := 0 ; endif
 endif
-if r2 > 22 ; r2 := 22 ; endif
+if r2 > maxrow()-2 ; r2 := maxrow()-2 ; endif
 buf := save_box(r1,c1,r2+1,c2+2)
 buf1 := save_maxrow()
 aeval(t_mas, {|x,i| t_mas[i] := if(ast_array[i], " * ", "   ")+t_mas[i] } )
