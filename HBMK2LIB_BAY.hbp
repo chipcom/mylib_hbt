@@ -1,5 +1,5 @@
 -hblib
--workdir=C:\TEMP
+-workdir=D:\_MO\TEMP
 -oMyLib_HBT.lib
 _CH_FILE.PRG
 _CONT_BS.PRG

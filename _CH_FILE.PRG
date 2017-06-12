@@ -57,8 +57,7 @@ if k == 0
     delta := 5
   endif
   is_new_help := (type("nhelp_code") == "C")
-  popup_prompt(T_ROW,T_COL+delta,si,mas_pmt,mas_msg,mas_fun,,,;
-               iif(is_new_help,"serv_cel",-1))
+  popup_prompt(T_ROW,T_COL+delta,si,mas_pmt,mas_msg,mas_fun,,,iif(is_new_help,"serv_cel",-1))
 else
   si := k
   tmp_nhelp := ret_nhelp_code()
@@ -109,7 +108,7 @@ next
 CloseGauge(g1)
 if summa_error > 0
   stat_msg(s_anykey) ; mybell(1,ERR)
-  inkeytrap(0)
+  inkey(0)
 else
   restscreen(buf)
   t_word := s_verify+"файлов БД"+s_isend
@@ -159,7 +158,7 @@ next
 CloseGauge(g1)
 if summa_error > 0
   stat_msg(s_anykey) ; mybell(1,ERR)
-  inkeytrap(0)
+  inkey(0)
 else
   restscreen(buf)
   t_word := s_verify+"ВЫБРАННЫХ файлов БД"+s_isend
@@ -190,17 +189,15 @@ if (z := input_file(T_ROW,T_COL+delta)) == 0
 endif
 if (my := input_diapazon(18,5,20,74,color8,;
        {"Введите начальную","и конечную","точки для проверки файла (в %)"},;
-       smy,{"99","999"}, {|x,y| if(!between(x,0,99) .or.;
-                                    !between(y,1,100) .or.;
-                                    y <= x ,;
-                              func_error(4,"Неверный ввод"), .t.) })) == NIL
+       smy,{"99","999"}, {|x,y| iif(!between(x,0,99) .or. !between(y,1,100) .or. y <= x ,;
+                                    func_error(4,"Неверный ввод"), .t.) })) == NIL
   return NIL
 endif
 status_key("^<F8>^ - прервать проверку файла")
 prover_file(dir_server+adirectory[z,F_NAME],my[1],my[2])
 if summa_error > 0
   stat_msg(s_anykey) ; mybell(1,ERR)
-  inkeytrap(0)
+  inkey(0)
 else
   restscreen(buf)
   if !file_stop
@@ -220,20 +217,17 @@ return (summa_error)
 
 *
 
-*****
+***** 28.05.17
 Static Function prover_file(file_name, pr_begin, pr_end)
-local hh, rr, ll, len_pol := {}, num_pol := {},;
-      priz_pol := {}, sdvig := {}, size,;
-      t_sdv := 0, i, i0, base_len, t_poz := " ", t_vr, fl_end := .f.
+local hh, rr, ll, len_pol := {}, num_pol := {}, priz_pol := {}, sdvig := {}, arr_field := {},;
+      size, t_sdv := 0, i, i0, base_len, t_poz := " ", t_vr, fl_end := .f.
 DEFAULT pr_begin to 0, pr_end to 100
 if pr_end != 100
   fl_end := .t.
 endif
-Private str_e_beg := str_e_tek := 0, fl, f_name := StripPath(file_name),;
-        mas_err_del := {}
+Private str_e_beg := 0, str_e_tek := 0, fl, f_name := StripPath(file_name), mas_err_del := {}
 // готовим данные о структуре файла
-hGauge := GaugeNew(,,{"W+/B","gr+/b","g+/b"},;
-                   "Поиск ошибок в файле "+f_name,.t.)
+hGauge := GaugeNew(,,{"W+/B","gr+/b","g+/b"},"Поиск ошибок в файле "+f_name,.t.)
 GaugeDisplay( hGauge )
 // Пробуем проверить качество заголовка файла
 if !prover_hider(file_name)
@@ -244,6 +238,14 @@ if file_stop
 endif
 // Выбираются все числовые поля
 G_Use(file_name,,"__BB__")
+// для символа пометки на удаление
+aadd(len_pol,space(1))
+aadd(num_pol,0)
+aadd(priz_pol,-2)
+aadd(sdvig,t_sdv)
+aadd(arr_field,"")
+t_sdv += 1
+//
 base_len := fcount()
 for i := 1 to base_len
   size := fieldsize(i)
@@ -252,23 +254,19 @@ for i := 1 to base_len
     aadd(num_pol,i)
     aadd(priz_pol,fielddeci(i))
     aadd(sdvig,t_sdv)
+    aadd(arr_field,FieldName(i))
   elseif fieldtype(i) == "D"
     aadd(len_pol,space(size))
     aadd(num_pol,i)
     aadd(priz_pol,-3)
     aadd(sdvig,t_sdv)
+    aadd(arr_field,FieldName(i))
   elseif fieldtype(i) == "L"
     aadd(len_pol,space(size))
     aadd(num_pol,i)
     aadd(priz_pol,-1)
     aadd(sdvig,t_sdv)
-  elseif i == 1
-    // для случая, когда певое поле символьное
-    // или все символьные
-    aadd(len_pol,space(1))
-    aadd(num_pol,i)
-    aadd(priz_pol,-2)
-    aadd(sdvig,t_sdv)
+    aadd(arr_field,FieldName(i))
   endif
   t_sdv += size
 next
@@ -284,9 +282,9 @@ endif
 // проход по проверке первого поля
 for i := i0 to ll // цикл по записям
   if i < 1000
-    @ 24,1 say padr(lstr(i),8) color "R+/R"
+    @ maxrow(),1 say padr(lstr(i),8) color "R+/R"
   elseif (i%100) == 0
-    @ 24,1 say padr(lstr(i),8) color "R+/R"
+    @ maxrow(),1 say padr(lstr(i),8) color "R+/R"
   endif
   if fl_end .and. int(pr_end*ll/100) < i
     exit
@@ -300,58 +298,66 @@ for i := i0 to ll // цикл по записям
   elseif t_key == K_F8
     exit
   endif
-  // конец
   for zxz := 1 to len(len_pol) // цикл по полям
-    if zxz == 1
-      // символ признака удаления
-      fseek(fp,hh+(i-1)*rr+sdvig[zxz],0)
-      t_poz := " "
-      fread(fp,@T_poz,len(T_poz))
-      if !(t_poz $ " *")
-        fix_error(i)
-        fl := .t.
-        if len(mas_err_del) < 4000
-          aadd(mas_err_del,{i,t_poz})
-        endif
-      endif
-    endif
     T_VR := len_pol[zxz]
-    if !fl .and. priz_pol[zxz] != -2 .and. LEN(T_VR) > 0
-      fseek(fp,hh+(i-1)*rr+sdvig[zxz]+1,0)
+    if LEN(T_VR) > 0
+      fseek(fp,hh+(i-1)*rr+sdvig[zxz],0)
       if fread(fp,@T_VR,len(T_VR)) == len(T_VR)
+        if priz_pol[zxz] == -2  // символ признака удаления
+          sim_prov := " *"         
+        elseif priz_pol[zxz] == 0  // целые числа
+          sim_prov := " -0123456789"
+        elseif priz_pol[zxz] == -1 // логические поля
+          sim_prov := " TF"
+        elseif priz_pol[zxz] == -3 // поля дат
+          sim_prov := " 0123456789"
+        else
+          sim_prov := " -0123456789." // числа с точкой
+        endif
         for j := 1 to LEN(T_VR)
-          if priz_pol[zxz] == 0  // целые числа
-            sim_prov := " -0123456789"
-          elseif priz_pol[zxz] == -1 // логические поля
-            sim_prov := " TF"
-          elseif priz_pol[zxz] == -3 // поля дат
-            sim_prov := " 0123456789"
-          else
-            sim_prov := " -0123456789." // числа с точкой
-          endif
           if !(substr(T_VR,j,1) $ sim_prov)
-            fix_error(i)
+            if zxz == 1 // символ признака удаления
+              aadd(mas_err_del,{i,T_VR})
+            endif
+            fix_error(i,arr_field[zxz])
             fl := .t.
             exit
           endif
-        next
+        next j
       endif
     endif
-    if fl
-      zxz := len(len_pol)+1
-    endif
-  next
-next
+    if fl ; exit ; endif
+  next zxz
+next i
 fix_error(-1)
 fclose(fp)
 CloseGauge( hGauge )
 return NIL
 
-*
-
-*****
-Static Function fix_error(i)
-Local j
+***** 28.05.17
+Static Function fix_error(i,_field_name)
+Local j, Cmessage
+if i == -1
+  return NIL
+endif
+  str_e_beg := str_e_tek := i
+  f_message({"","ОБНАРУЖЕНЫ ПОВРЕЖДЕНИЯ !!!","",;
+                "Всего повреждений - "+lstr(++summa_error),;
+                "Последний поврежденный файл - "+alltrim(f_name),;
+                "Последняя повреждённая запись - "+lstr(i),""},,,,6)
+  if summa_error < 500              
+    Cmessage := f_name+" - повреждения в строке "+lstr(i)
+    if empty(_field_name)
+      if len(mas_err_del) > 0
+        Cmessage += ", признак удаления - символ: "+mas_err_del[1,2]+" (asc="+lstr(asc(mas_err_del[1,2]))+")"
+      endif
+      asize(mas_err_del,0)
+    else
+      Cmessage += " в поле "+_field_name
+    endif
+    strfile(cMessage+eos,dir_server+"error.txt",.t.)
+  endif
+/*
 if i == -1 .and. str_e_beg == 0
   return NIL
 endif
@@ -359,32 +365,41 @@ if str_e_beg == 0
   str_e_beg := str_e_tek := i
 elseif str_e_tek+1 == i
   str_e_tek++
-  f_message({"","ОБНАРУЖЕНЫ ПОВРЕЖДЕНИЯ В ФАЙЛАХ !!!","",;
+  f_message({"","ОБНАРУЖЕНЫ ПОВРЕЖДЕНИЯ !!!","",;
                 "Всего повреждений - "+lstr(summa_error+1),;
                 "Последний поврежденный файл - "+alltrim(f_name),;
-                "Последнее повреждение - с "+padc(lstr(str_e_beg),7)+;
-                " записи по "+padc(lstr(str_e_tek),7)+" запись.",""},,"GR+/B","W+/B",,6)
+                "Последнее повреждение - с "+padc(lstr(str_e_beg),8)+;
+                " записи по "+padc(lstr(str_e_tek),8)+" запись.",""},,"GR+/B","W+/B",,6)
 else
-  //вывод нач стр  str_e_beg
-  //кон строк str_e_tek
-  f_message({"","ОБНАРУЖЕНЫ ПОВРЕЖДЕНИЯ В ФАЙЛАХ !!!","",;
+  // вывод с начальной строки str_e_beg по конечную строку str_e_tek
+  f_message({"","ОБНАРУЖЕНЫ ПОВРЕЖДЕНИЯ !!!","",;
                 "Всего повреждений - "+lstr(++summa_error),;
                 "Последний поврежденный файл - "+alltrim(f_name),;
-                "Последнее повреждение - с "+padc(lstr(str_e_beg),7)+;
-                " записи по "+padc(lstr(str_e_tek),7)+" запись.",""},,,,6)
-  Cmessage := f_name+;
-              " - обнаружены повреждения в строках с "+lstr(str_e_beg)+" по "+lstr(str_e_tek)+eos
-  strfile(cMessage,dir_server+"error.txt",.t.)
+                "Последнее повреждение - с "+padc(lstr(str_e_beg),8)+;
+                " записи по "+padc(lstr(str_e_tek),8)+" запись.",""},,,,6)
+  Cmessage := f_name+" - обнаружены повреждения в "
+  if str_e_beg == str_e_tek
+    Cmessage += "строке "+lstr(str_e_beg)+iif(empty(_field_name), "", " в поле "+_field_name)
+  else
+    Cmessage += "строках с "+lstr(str_e_beg)+" по "+lstr(str_e_tek)
+  endif
+  strfile(cMessage+eos,dir_server+"error.txt",.t.)
   str_e_beg := str_e_tek := i
   if len(mas_err_del) > 0
-    Cmessage := "  В следующих строках в поле 'Признак удаления' стоят неверные символы:"+eos
-    strfile(cMessage,dir_server+"error.txt",.t.)
+    if len(mas_err_del) == 1
+      Cmessage := "  В поле 'Признак удаления' стоит неверный символ:"
+    else
+      Cmessage := "  В следующих строках в поле 'Признак удаления' стоят неверные символы:"
+    endif
+    strfile(cMessage+eos,dir_server+"error.txt",.t.)
     for j := 1 to len(mas_err_del)
-      Cmessage := "  - строка "+lstr(mas_err_del[j,1])+", символ: "+mas_err_del[j,2]+eos
+      Cmessage := "  - строка "+lstr(mas_err_del[j,1])+", символ: "+mas_err_del[j,2]+;
+                  " (asc="+lstr(asc(mas_err_del[j,2]))+")"+eos
       strfile(cMessage,dir_server+"error.txt",.t.)
     next
+    asize(mas_err_del,0)
   endif
-endif
+endif*/
 return NIL
 
 *
@@ -421,7 +436,7 @@ return adirectory
 
 *
 
-*****
+***** 28.05.17
 Static Function prover_hider(file_name,tip_prov)
 Local fp, bt := " ", fl := .t., t, j, l_zap, N_pol, t_vr, fl_fox := .f.
 Local test := "QWERTYUIOPASDFGHJKLZXCVBNM_0123456789"
@@ -440,9 +455,9 @@ endif
 if asc(bt) == cton("F5",16)
   Cmessage := f_name+" создан СУБД FoxPro!"+eos
   strfile(cMessage,dir_server+"error.txt",.t.)
-  n_message({"Файл "+f_name+" создан СУБД FoxPro!",;
-             "Его конструкция содержит мемо-поля, структуру",;
-             "которых не может обработать СУБД Clipper.",;
+  n_message({"Вероятнее всего, файл "+f_name+" создан СУБД FoxPro!",;
+             "Данная процедура написана для проверки корректности",;
+             "файлов DBF, созданных с помощью dBaseIII+/Clipper/Harbour.",;
              s_verify+"проводиться не будет!"},,;
              c1BorColor,c1BoxColor,,,c1RunColor)
   file_stop := .t.
@@ -474,7 +489,7 @@ if fl
   kol_strok := asc(substr(bt,1,1))
   kol_strok += 256*asc(substr(bt,2,1))
   kol_strok += 65536*asc(substr(bt,3,1))
-  // 4 байт не считаем - мы не работаем с базами длинее 16 000 000
+  // 4 байт не считаем - мы не работаем с базами длинее 16 000 000 - а почему?
   if (asc(substr(bt,4,1)) != 0)
     if tip_prov == 0
       fl := .f.
@@ -499,7 +514,7 @@ if fl
   t += 256*asc(substr(bt,2,1))
   t -= 34
   n_pol := t/32
-  if n_pol != int(t/32)                    // ??????????????????
+  if n_pol != int(t/32)                    // 
     fl := .f.
   endif
 endif
@@ -612,8 +627,7 @@ return fl
 *****
 function remont_dbf()
 // Возвращаемое значение - количество ошибок
-Local buf := savescreen(), i, g1, len_gmas, t := 0, z, VR, stroki, z_t, ;
-      lOldDeleted
+Local buf := savescreen(), i, g1, len_gmas, t := 0, z, VR, stroki, z_t, lOldDeleted
 close databases
 Private summa_error := 0, fl_stop := .f.
 Private adirectory := directory(dir_server+"*.dbf")

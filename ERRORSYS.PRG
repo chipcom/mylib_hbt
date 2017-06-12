@@ -159,13 +159,13 @@ return fl
 
 *
 
-***** просмотр файла ошибок (рекомендуется включать в меню "Сервис")
+***** 28.05.17 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
 Function view_errors()
 if !file(dir_server+err_file)
   return func_error(4,"Не обнаружен файл ошибок!")
 endif
 keyboard chr(K_END)
-viewtext(Devide_Into_Pages(dir_server+err_file,80),,,,.f.,,,5,,,.f.)
+viewtext(Devide_Into_Pages(dir_server+err_file,80,84),,,,.t.,,,5,,,.f.)
 return NIL
 
 *
