@@ -180,12 +180,12 @@ do while .T.
         // its data retrieval block
         cWork := eval( (b:getColumn(2)):block )
         if (cWork == sUpDir)
-          //up_dir := StripPath(hb_AnsiToOem(DIRNAME()))
+          //up_dir := StripPath(win_ANSIToOEM(DIRNAME()))
           up_dir := StripPath(DIRNAME())
           DIRCHANGE("..")
           lReconfigure := .T.
         elseif (cWork == sSubDir)
-          //DIRCHANGE( hb_OemToAnsi(_aDir[nSubscript,1]) )
+          //DIRCHANGE( win_OEMToANSI(_aDir[nSubscript,1]) )
           DIRCHANGE( _aDir[nSubscript,1] )
           lReconfigure := .T.
         elseif !empty(_aDir) .and. !empty( _aDir[nSubscript,1] )
@@ -236,7 +236,7 @@ setcolor(tmp_color)
 if fl_esc
   name_file := ""
 else
-  //name_file := charone("\",hb_AnsiToOem(name_file))
+  //name_file := charone("\",win_ANSIToOEM(name_file))
   name_file := charone("\",name_file)
 endif
 if type("p_var_manager") == "C" .and. !empty(name_file)
@@ -253,7 +253,7 @@ Local cTemp
 // Transverse array and its subarrays
 i := 1
 do while i <= len(aArray)
-  //aArray[i].filename := hb_AnsiToOem(alltrim(aArray[i].filename))
+  //aArray[i].filename := win_ANSIToOEM(alltrim(aArray[i].filename))
   aArray[i].filename := alltrim(aArray[i].filename)
   if ("D" $ aArray[i].fileattrib)
     if (aArray[i].filename == ".")
@@ -339,7 +339,7 @@ return ret
 *****
 Static Function man_put_dir( nTop, nLeft, nBottom, nRight )
 Local s, cur_drv := DISKNAME(), cur_dir, k := nRight - nLeft - 1, k1 := 0
-//cur_dir := hb_AnsiToOem(DIRNAME(cur_drv))
+//cur_dir := win_ANSIToOEM(DIRNAME(cur_drv))
 cur_dir := DIRNAME(cur_drv)
 if !empty(smaska)
   k1 := 3 + len(smaska)

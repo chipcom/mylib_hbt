@@ -2,7 +2,7 @@
 
 ***** конвертирует WINDOWS-строку в DOS-строку
 Function win2dos(win_str)
-Local dos_str := hb_AnsiToOem(win_str)
+Local dos_str := win_ANSIToOEM(win_str)
 /*Local len_str, i, cur_char, dos_str := ""
 len_str := len(win_str)
 for i := 1 to len_str
@@ -25,7 +25,7 @@ return dos_str
 
 ***** конвертирует DOS-строку в WINDOWS-строку
 Function dos2win(dos_str)
-Local win_str := hb_OemToAnsi(dos_str)
+Local win_str := win_OEMToANSI(dos_str)
 /*Local len_str, i, cur_char, win_str := ""
 len_str := len(dos_str)
 for i := 1 to len_str

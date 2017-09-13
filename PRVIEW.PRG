@@ -504,7 +504,7 @@ do while !ft_eof()
   if f_stroke_next_page(s)
     add_string(chr(12))
   else
-    add_string(hb_OemToAnsi(s))
+    add_string(win_OEMToANSI(s))
   endif
   ft_skip()
 enddo
