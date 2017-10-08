@@ -305,11 +305,7 @@ endif
 rest_box(buf)
 return fl
 
-***** 01.09.16 для перевода русских слов в верхний регистр с учётом буквы "ё"
-Function RUpper(s)
-return charrepl("ё",upper(s),"Ё")
-
-***** 01.09.16
+***** 05.10.17
 Static Function find_stroke(par)
 Static str_find := ""
 Local rec1 := ft_recno(), fl := .f., buf := save_maxrow(), k, arr := {}
@@ -318,7 +314,7 @@ if par == 1
         "Введите ключ для поиска",padr(str_find,48),"@K@!")) != NIL
     if !empty(k)
       fl := .t.
-      str_find := alltrim(RUpper(k))
+      str_find := alltrim(Upper(k))
     endif
   endif
 elseif par == 2
@@ -336,7 +332,7 @@ if fl
     ft_skip()
   endif
   do while !ft_eof()
-    s := RUpper(ft_readln())
+    s := Upper(ft_readln())
     for k := 1 to len(arr)
       if arr[k] $ s
         fl := .t.
@@ -504,7 +500,7 @@ do while !ft_eof()
   if f_stroke_next_page(s)
     add_string(chr(12))
   else
-    add_string(win_OEMToANSI(s))
+    add_string(hb_OemToAnsi(s))
   endif
   ft_skip()
 enddo
@@ -714,7 +710,7 @@ stat_msg("Ждите! Запуск генератора отчетов FastReport.")
 // Now load and init FastReport
 PRIVATE FrPrn := frReportManager():new(,.t.),; // .t. ошибки выводятся в OEM кодировке
         lShowCustName := .t.
-FrPrn:SetIcon("MAIN_ICON")        
+FrPrn:SetIcon("MAIN_ICON")
 if file(fr_data+sdbf)
   USE (fr_data) NEW
   if file(fr_data+sntx)
@@ -745,7 +741,7 @@ if valtype(cFile_Otchet) == "C"
     cFile_Otchet += sExt
   endif
   if hb_FileExists(dir_exe+cFile_Otchet)
-    FrPrn:LoadFromFile(dir_exe+cFile_Otchet)
+    FrPrn:LoadFromFile(HB_oemtoansi(dir_exe+cFile_Otchet))   //14.09.17
   else
     is_ot := func_error(4,"Не обнаружен файл отчёта "+dir_exe+cFile_Otchet)
   endif
@@ -756,7 +752,8 @@ else
       cFile_Otchet[i] += sExt
     endif
     if hb_FileExists(dir_exe+cFile_Otchet[i])
-      FrPrn:LoadFromFile(dir_exe+cFile_Otchet[i])
+      FrPrn:LoadFromFile(HB_oemtoansi(dir_exe+cFile_Otchet[i]))
+      FrPrn:LoadFromFile(cFile_Otchet[i])
       FrPrn:PrepareReport(iif(fl,nil,FR_NOTCLEARLASTREPORT))
       fl := .f.
     else

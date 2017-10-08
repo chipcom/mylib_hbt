@@ -10,7 +10,8 @@ if is_first
   REQUEST HB_GT_WVT
   REQUEST HB_GT_WVT_DEFAULT
   // запретить закрытие окна (крестиком и по Alt+F4)
-  HB_GtInfo( HB_GTI_CLOSABLE,.F.)
+  HB_GtInfo( HB_GTI_CLOSABLE,.F.) // для GT_WVT
+  // hb_gtInfo(HB_GTI_CLOSEMODE, 2 ) // для GT_WVG
   // Определить сразу окно 25*80 символов, иначе нужна дополнительная настройка
   SetMode(25,80)
 endif
