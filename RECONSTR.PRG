@@ -1,7 +1,7 @@
 #include "set.ch"
 #include "function.ch"
 
-***** 05.11.15 создает или перестраивает файл БД
+***** 12.10.17 создает или перестраивает файл БД
 Function reconstruct(file_base,;  // имя файла базы данных
                      struct_dbf,; // двумерный массив с эталонной структурой БД
                      func_index,; // наименование ф-ии, в которой создаются индексные файлы для данной БД
@@ -15,7 +15,7 @@ file_base := lower(file_base)
 if !(right(file_base,4) == sdbf)
   file_base += sdbf
 endif
-if !file(file_base)
+if !hb_FileExists(file_base)
   if !empty(lstring)
     stat_msg("Ждите! Создается база данных по "+lstring)
   endif
@@ -53,6 +53,8 @@ elseif control_base(2)
     append from (file_base) codepage "RU866"
     close databases
     //
+    create_copy_reconsrtuct_file(file_base)
+    //
     do while ferase(file_base) != 0
     enddo
     if fl_NET
@@ -81,4 +83,18 @@ if fl .and. !empty(func_index)
   fl := &(func_index)
 endif
 close databases
+return NIL
+
+***** 12.10.17 создание копии файла до реконструкции в подкаталоге RECONSTRUCTION 
+Static Function create_copy_reconsrtuct_file(file_base)
+Static cslash := "\"
+Local name_file := '_'+dtos(sys_date)+charrem(":",hour_min(seconds()))+"_"+StripPath(file_base)
+Local name_dir := KeepPath(file_base)+cslash+'RECONSTRUCTION'
+if !hb_DirExists(name_dir)
+  if hb_DirCreate(name_dir) != 0
+    return NIL // Невозможно создать подкаталог для копии
+  endif
+endif
+name_dir += cslash
+copy file (file_base) to (name_dir+name_file)
 return NIL
