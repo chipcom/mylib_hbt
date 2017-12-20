@@ -1,9 +1,9 @@
 #include "function.ch"
 
-***** заменить последние нули в дес.знаках (и дес.точку) на пробелы
-Function str_0(n,l,d)
+***** 18.12.17 заменить последние нули в дес.знаках (и дес.точку) на пробелы
+Function str_0(n,l,d,fl_empty)
 Local s, i, c
-DEFAULT l TO 10, d TO 0
+DEFAULT l TO 10, d TO 0, fl_empty TO .f.
 s := str(n,l,d)
 if d > 0
   for i := 1 to d+1
@@ -13,5 +13,8 @@ if d > 0
       exit
     endif
   next
+endif
+if fl_empty .and. alltrim(s) == '0'
+  s := space(l)
 endif
 return s
