@@ -1,7 +1,7 @@
 #include "inkey.ch"
 #include "function.ch"
 
-***** 17.01.14 popup_prompt по 2-мерному массиву {{"name","kod"},...}
+***** 16.01.18 popup_prompt по 2-мерному массиву {{"name","kod"},...}
 Function popup_2array(arr,r1,c1,k,i_element,/*@*/ret_arr,ltitle,ltitle_color,lcolor)
 // arr - двумерный массив
 // r1,c1 - координаты левого верхнего угла меню
@@ -45,7 +45,7 @@ i := ascan(arr, {|x| x[i2] == k })
 status_key("^<Esc>^ - отказ;  ^<Enter>^ - выбор")
 if (i := popup(r1,c1,r2,c2,mas_pmt,i,lcolor,.t.,,,ltitle,ltitle_color)) > 0
   ret := arr[i,i2]
-  ret_arr := arr[i]
+  ret_arr := aclone(arr[i])
 endif
 rest_box(buf)
 rest_box(buf1)
