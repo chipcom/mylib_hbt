@@ -15,12 +15,17 @@ if valtype(arr)=="A" .and. len(arr) > 0
 endif
 return sList
 
-*****
+***** 24.01.18
 Function list2arr(sList)
 Local i, arr := {}
 if valtype(sList)=="C" .and. !empty(sList)
   for i := 1 to numtoken(sList,",")
-    aadd(arr, int(val(token(sList,",",i))) )
+    aadd(arr, token(sList,",",i))
+    if "." $ arr[i]
+      arr[i] := val(arr[i])
+    else
+      arr[i] := int(val(arr[i]))
+    endif
   next
 endif
 return arr
