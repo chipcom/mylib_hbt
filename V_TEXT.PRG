@@ -28,7 +28,7 @@ FUNCTION ViewText(mfile, title, mf_print, plus_msg, fl_right,;
 // yes_edit - разрешать включать редактор (по умолчанию .t. - да)
 // count_copy - сколько копий (по умолчанию 0 - бесконечность)
 LOCAL oBrowse, oColumn, lCont, lEdit, cStatus, j := 1, j1 := 0, ;
-      buf, buf1, tmp_color := setcolor(), ;
+      i, buf, buf1, tmp_color := setcolor(), ;
       fl_plus := (plus_msg == NIL), lwidth, arr_keys := {},;
       s_msg := " <Esc> - выход;    <Home> <End> <PgUp> <PgDn>", ;
       fl_mouse, x_mouse := 0, y_mouse := 0, km, raz := 0,;

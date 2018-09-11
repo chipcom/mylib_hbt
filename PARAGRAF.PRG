@@ -2,7 +2,7 @@
 
 ***** превратить строку s1 в отформатированный абзац шириной ll
 Function para_format(s1,ll,r_margin)
-// r_margin - выранивать (не выравнивать) по правой границе
+// r_margin - выравнивать (не выравнивать) по правой границе
 Local ss := "", i, j, k, l, ll1 := ll, mn, kol, first_space, ;
       t_len, t := {}, tmp, b1, b2, b, tmp_len
 DEFAULT r_margin TO .t.

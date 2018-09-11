@@ -4,7 +4,7 @@
 #include "inkey.ch"
 #include "getexit.ch"
 
-***** 14.01.16 Реализация GetReader с помощью меню (различными способами)
+***** 10.09.18 Реализация GetReader с помощью меню (различными способами)
 Function menu_reader(get,tmp_mas,typ,kod_help,mcolor,fl_esc,titul,titul_color)
 // get -      Get-объект
 // tmp_mas -  указатель на массив
@@ -110,7 +110,7 @@ if (k := inkeytrap(0)) == K_ENTER .or. k >= 32
       restscreen(buf)
       if typ == A__MENUVERT_SPACE .and. lastkey() == K_SPACE
         if flag_2
-          &__m1var := 0
+          &__m1var := iif(valtype(old_value) == "N", 0, "")
         endif
         @ get:row,get:col clear to get:row,get:col+len_var-1
         &__mvar := space(10)

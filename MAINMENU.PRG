@@ -11,7 +11,7 @@ Function put_chip(r)
 // ничего
 return NIL
 
-***** головная ф-ия работы в первом (горизонтальном) меню
+***** 26.02.18 головная функция работы в первом (горизонтальном) меню
 Function func_main(fl_exit,blk)
 // fl_exit = .t. для разрешения выхода по ESC
 LOCAL selItem, i, arr_mouse
@@ -32,8 +32,8 @@ endif
 selItem := 1
 do while .t.
   setmtcolor(col1menu)
-  @ 24,0
-  set message to 24 center
+  @ maxrow(),0
+  set message to maxrow() center
   for i := 1 to max_glLock
     @ rmain_menu,cmain_menu[i] PROMPT main_menu[i] MESSAGE main_message[i]
   next
@@ -46,11 +46,11 @@ do while .t.
 enddo
 return NIL
 
-***** служебная функция для увеличения скорости работы в главном меню
+***** 26.02.18 служебная функция для увеличения скорости работы в главном меню
 FUNCTION _make_first()
 LOCAL i, j, l, r1 := rmain_menu+1, c1, r2, c2, aName, aLine, arr_m[max_glLock]
 Public _first_menu[max_glLock]
-set message to 24 center
+set message to maxrow() center
 for j := 1 to max_glLock
   aName := aclone(first_menu[j])
   aLine := {}
@@ -60,7 +60,7 @@ for j := 1 to max_glLock
     if valtype(aName[i]) != "C"
       aadd(aLine,i)
       adel(aName, i)
-      Dec(tmp)
+      --tmp
     endif
   next
   asize(aName, tmp)
@@ -73,15 +73,15 @@ for j := 1 to max_glLock
   aeval(aName, {|x,i| aName[i] := padr(x,if("~" $ x, l+1, l))})
   r2 := r1+len(first_menu[j])+1
   c2 := c1+l+1
-  if c2 > 77
-    c2 := 77
+  if c2 > maxcol()-2
+    c2 := maxcol()-2
     c1 := c2-l-1
   endif
   setmtcolor(col1menu)
   tmp := 0
   FOR i := 1 TO len(first_menu[j])
     if valtype(first_menu[j,i]) == "C"
-      Inc(tmp)
+      ++tmp
       @ i+r1, c1+1 PROMPT aName[tmp] MESSAGE first_message[j,tmp]
     endif
   NEXT
@@ -95,7 +95,7 @@ for j := 1 to max_glLock
 next
 return arr_m
 
-***** Главное меню (1-го уровня)
+***** 26.02.18 Главное меню (1-го уровня)
 FUNCTION gen_Menu( number, arr_mouse )
 LOCAL i, buf, selItem, tmp_help, tmp_nhelp
 LOCAL aName := _first_menu[number,1], aFunc := func_menu[number]
@@ -117,7 +117,7 @@ do while .t.
   help_code := 4
   nhelp_code := "_1_menu"
   setcolor(color0)
-  @ 24,0
+  @ maxcol(),0
   FOR i := 1 TO len(_first_menu[number,6])
     @ _first_menu[number,6,i]+r1, c1 say "╟"+replicate("─",c2-c1-1)+"╢"
   NEXT
@@ -139,7 +139,7 @@ do while .t.
       tmp := 0
       FOR i := 1 TO len(first_menu[number])
         if valtype(first_menu[number,i]) == "C"
-          Inc(tmp)
+          ++tmp
           if tmp == selItem
             T_ROW := r1+1+i
             exit
@@ -149,7 +149,7 @@ do while .t.
       T_COL := c1
       chm_help_code := help_code := -1
       nhelp_code := ""
-      i := &(aFunc[selItem])             //  вызов функции
+      i := &(aFunc[selItem]) //  вызов функции
     else
       exit
     endif
@@ -160,12 +160,10 @@ chm_help_code := help_code := tmp_help
 nhelp_code := tmp_nhelp
 RETURN selItem
 
-***** имитация POPUP с помощью MENU TO
-Function popup_prompt(r1, c1, sItem, m_prompt, m_msg, m_func, ;
-                      m_color, fl_clear, k_help)
-Local r2 := r1+1+len(m_prompt), c2, m1_prompt[len(m_prompt)], ;
-      i, tlen := 0, buf, tmp_color := setcolor(), k_nhelp,;
-      tmp_help, tmp_nhelp, COUNT := len(m_prompt), k, tr, tc
+***** 26.02.18 имитация POPUP с помощью MENU TO
+Function popup_prompt(r1, c1, sItem, m_prompt, m_msg, m_func, m_color, fl_clear, k_help)
+Local r2 := r1+1+len(m_prompt), c2, m1_prompt[len(m_prompt)], i, tlen := 0, buf, ;
+      tmp_color := setcolor(), k_nhelp, tmp_help, tmp_nhelp, COUNT := len(m_prompt), k, tr, tc
 if type("T_ROW") == "N"
   tr := T_ROW ; tc := T_COL
 endif
@@ -184,20 +182,20 @@ for i := 1 to COUNT
   k := len(m1_prompt[i])
   tlen := max(tlen,if("~" $ m1_prompt[i],k-1,k))
 next
-Inc(tlen)
+++tlen
 for i := 1 to COUNT
   m1_prompt[i] := padr(m1_prompt[i], if("~" $ m1_prompt[i], tlen+1, tlen))
 next
 c2 := c1+tlen+1
-if c2 > 77
-  c2 := 77
+if c2 > maxcol()-2
+  c2 := maxcol()-2
   c1 := c2-tlen-1
 endif
 if r1 < 0
   r2 += abs(r1) ; r1 := 0
 endif
-if r2 > 23
-  r1 -= (r2-23) ; r2 := 23
+if r2 > maxrow()-1
+  r1 -= (r2-(maxrow()-1)) ; r2 := maxrow()-1
 endif
 tmp_help := if(type("chm_help_code")=="N", chm_help_code, help_code)
 // для новой HELP-системы
@@ -210,8 +208,8 @@ do while .t.
   chm_help_code := help_code := k_help
   nhelp_code := k_nhelp
   if m_msg != NIL
-    @ 24,0
-    set message to 24 center
+    @ maxrow(),0
+    set message to maxrow() center
   endif
   FOR i := 1 TO len(m1_prompt)
     if m_msg != NIL
@@ -245,17 +243,17 @@ RETURN sItem
 Function pr_1_str(s,r)
 Local tmp_color := setcolor(color0)
 DEFAULT r TO 0
-@ r,0 say padc(alltrim(s),80)
+@ r,0 say padc(alltrim(s),maxcol()+1)
 put_chip(r)
 setcolor(tmp_color)
 return NIL
 
-***** процедура исп-ся для перемещения вправо в главном меню
+***** процедура используется для перемещения вправо в главном меню
 PROCEDURE R_Arrow
 KEYBOARD CHR(K_ESC) + CHR(K_RIGHT) + CHR(K_ENTER)
 RETURN
 
-***** процедура исп-ся для перемещения влево в главном меню
+***** процедура используется для перемещения влево в главном меню
 PROCEDURE L_Arrow
 KEYBOARD CHR(K_ESC) + CHR(K_LEFT) + CHR(K_ENTER)
 RETURN
