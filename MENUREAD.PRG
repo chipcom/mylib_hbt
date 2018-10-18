@@ -4,7 +4,7 @@
 #include "inkey.ch"
 #include "getexit.ch"
 
-***** 10.09.18 Реализация GetReader с помощью меню (различными способами)
+***** 17.10.18 Реализация GetReader с помощью меню (различными способами)
 Function menu_reader(get,tmp_mas,typ,kod_help,mcolor,fl_esc,titul,titul_color)
 // get -      Get-объект
 // tmp_mas -  указатель на массив
@@ -49,7 +49,7 @@ if (k := inkeytrap(0)) == K_ENTER .or. k >= 32
   old_esc := Set(_SET_ESCAPE, .t.)
   do case
     case eq_any(typ,A__MENUHORIZ,A__MENUVERT,A__MENUVERT_SPACE)
-      if valtype(tmp_mas[1]) == "A"
+      if len(tmp_mas) > 0 .and. valtype(tmp_mas[1]) == "A"
         aeval(tmp_mas, {|x| aadd(t_mas,x[1]), aadd(tk_mas,x[2])} )
         flag_2 := .t.
       else
