@@ -519,14 +519,14 @@ return NIL
 
 #include "FastRepH.ch"
 
-***** 22.05.16
+***** 09.03.19
 Function prn_Window(regim,tm,is_albom)
 DEFAULT tm TO {.t.,1,9999}, is_albom TO _upr_isalbom()
 PRIVATE lShowCustName := .t.
 PRIVATE FrPrn := frReportManager():new(,.t.) // .t. ошибки выводятся в OEM кодировке
 FrPrn:SetIcon("MAIN_ICON")
 if type("name_view_file") == "C"
-  FrPrn:SetTitle("Предварительный просмотр файла "+name_view_file)
+  FrPrn:SetTitle(fr_OemToAnsi(lower(name_view_file)))
 endif
 FrPrn:StartManualBuild({|| MyTxtFR(regim,tm,is_albom) }, iif(is_albom,1,0), , FR_CM)
 FrPrn:ShowReport()
@@ -700,7 +700,7 @@ for j := 1 to max_FR_date_dbf
 next
 return NIL
 
-***** запустить генератор отчетов
+***** 09.03.19 запустить генератор отчетов
 Function call_fr(cFile_Otchet,ltip,cFile_Export,bMasterDetail,is_open)
 Static sExt := ".fr3"
 Local i, j, nfile, buf := savescreen(), tmp_select := select(), fl, is_ot := .t.
@@ -742,6 +742,7 @@ if valtype(cFile_Otchet) == "C"
   endif
   if hb_FileExists(dir_exe+cFile_Otchet)
     FrPrn:LoadFromFile(HB_oemtoansi(dir_exe+cFile_Otchet))   //14.09.17
+    FrPrn:SetTitle(lower(cFile_Otchet))
   else
     is_ot := func_error(4,"Не обнаружен файл отчёта "+dir_exe+cFile_Otchet)
   endif
