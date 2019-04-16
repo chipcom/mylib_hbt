@@ -4,8 +4,8 @@
 #include "inkey.ch"
 #include "getexit.ch"
 
-***** 17.10.18 Реализация GetReader с помощью меню (различными способами)
-Function menu_reader(get,tmp_mas,typ,kod_help,mcolor,fl_esc,titul,titul_color)
+***** 24.03.19 Реализация GetReader с помощью меню (различными способами)
+Function menu_reader(get,tmp_mas,typ,kod_help,mcolor,fl_esc,titul,titul_color,fl_sort)
 // get -      Get-объект
 // tmp_mas -  указатель на массив
 // typ -      тип меню
@@ -14,13 +14,13 @@ Function menu_reader(get,tmp_mas,typ,kod_help,mcolor,fl_esc,titul,titul_color)
 Local k, buf, r1, c1 := get:col, r2, c2, nr := len(tmp_mas), ;
       nc := 0, t_mas := {}, tk_mas := {}, flag_2 := .f., i, ;
       tmp_color := setcolor(), nc1, tmp_help, tmp_nhelp, lregim,;
-      old_value, len_var, tmp_list, old_esc, fl_valid := .t., s
+      old_value, len_var, tmp_list, old_esc, fl_valid := .t., s, tmp_mas_sort
 Private __mvar := readvar()
 if empty(__mvar)  // если вызов через VGET
   __mvar := get:name
 endif
 Private __m1var := "M1"+substr(__mvar,2)
-DEFAULT fl_esc TO .t.
+DEFAULT fl_esc TO .t., fl_sort TO .f.
 if type("kol_screen") == "N" .and. kol_screen == 1
   fl_esc := .f.  // для ф-ии f_edit_spr
 endif
@@ -50,7 +50,13 @@ if (k := inkeytrap(0)) == K_ENTER .or. k >= 32
   do case
     case eq_any(typ,A__MENUHORIZ,A__MENUVERT,A__MENUVERT_SPACE)
       if len(tmp_mas) > 0 .and. valtype(tmp_mas[1]) == "A"
-        aeval(tmp_mas, {|x| aadd(t_mas,x[1]), aadd(tk_mas,x[2])} )
+        if fl_sort // сортировка допускается только для двумерного массива
+          tmp_mas_sort := aclone(tmp_mas)
+          asort(tmp_mas_sort,,,{|x,y| upper(x[1]) < upper(y[1]) })
+          aeval(tmp_mas_sort, {|x| aadd(t_mas,x[1]), aadd(tk_mas,x[2])} )
+        else
+          aeval(tmp_mas, {|x| aadd(t_mas,x[1]), aadd(tk_mas,x[2])} )
+        endif
         flag_2 := .t.
       else
         t_mas := aclone(tmp_mas)
