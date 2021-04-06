@@ -74,7 +74,11 @@ if eq_any(keystroke,K_F7,K_F8,K_F9) .and. tm[1]
     return fl
   endif
   s := inst_print
-  if regim % 3 == 0      // Condensed
+  if regim == 8  // Condensed суперкомпакт
+    k := 17
+    inst_print := "Condensed"
+    m_nlq := 1
+  elseif regim % 3 == 0  // Condensed
     k := 17
     inst_print := "Condensed"
     m_nlq := 1
@@ -542,6 +546,10 @@ Local msize, len_stroke, kol_list, s, s1, nwidth, widthList, _top,;
       nlpi := 2.54/iif(iRegim<4,6,8)*1.05,; // перевод 6 или 8 lpi в см
       rec, _i, t_list, sh1, sh2, sh3, sh4, sh5, fl_exit
 //
+if iRegim == 8
+  nlpi := 2.54/iif(iRegim<4,6,9)*1.05 // перевод 6 или 8 lpi в см
+  iRegim := 6
+endif
 kol_list := tm[3] - tm[2] + 1
 len_stroke := ft_StrLen()
 FrPrn:SetDefaultFontProperty("Name", "Lucida Console")
