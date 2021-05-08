@@ -17,3 +17,25 @@ for i := 1 to n
   endif
 next
 return fl
+
+function eq_any_new( mval, ... )
+  local fl := .f., i
+  local n := pcount()
+  local mType := ValType(mval)
+
+  if n < 2
+    return fl
+  endif
+  for i := 2 to n
+    mvar := hb_PValue( i )
+    if mType != ValType( mvar)
+      loop
+    endif
+
+    if mval == mvar
+    // if &mvar == mval
+      fl := .t. ; exit
+    endif
+  next
+  
+return fl
