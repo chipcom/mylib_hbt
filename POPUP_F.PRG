@@ -6,12 +6,13 @@
 FUNCTION popup_SCR(nTop, nLeft, nBottom, nRight, aArray, nInd, col,;
                    fl_shadow, n_func, regim, titul, titul_color, ;
                    mfunction, blk_color)
-Local k, buf := savescreen()
-k := popup(nTop, nLeft, nBottom, nRight, aArray, nInd, col,;
+  Local k, buf := savescreen()
+
+  k := popup(nTop, nLeft, nBottom, nRight, aArray, nInd, col,;
            fl_shadow, n_func, regim, titul, titul_color, ;
            mfunction, blk_color)
-restscreen(buf)
-return k
+  restscreen(buf)
+  return k
 
 ***** вертикальное меню
 FUNCTION popup(nTop, nLeft, nBottom, nRight, aArray, nInd, col,;
@@ -244,16 +245,17 @@ RETURN if(nKey == K_ESC, 0, nInd)
 
 ***** поиск по нач.букве в POPUP, игнорируя пробелы и "*"
 Function StrForPopup(s,k)
-Local i, j, c, ls
-s := upper(s)
-for i := 1 to len(s)
-  c := substr(s,i,1)
-  if !eq_any(c," ","*")
-    j := i ; exit
+  Local i, j, c, ls
+
+  s := upper(s)
+  for i := 1 to len(s)
+    c := substr(s,i,1)
+    if !eq_any(c," ","*")
+      j := i ; exit
+    endif
+  next
+  if j == NIL
+    j := 1
   endif
-next
-if j == NIL
-  j := 1
-endif
-ls := substr(s,j,k)
-return padr(ls,k)
+  ls := substr(s,j,k)
+  return padr(ls,k)
