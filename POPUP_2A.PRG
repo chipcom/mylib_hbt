@@ -1,8 +1,8 @@
 #include "inkey.ch"
 #include "function.ch"
 
-***** 16.01.18 popup_prompt по 2-мерному массиву {{"name","kod"},...}
-Function popup_2array(arr,r1,c1,k,i_element,/*@*/ret_arr,ltitle,ltitle_color,lcolor, n_func)
+***** 21.05.21 popup_prompt по 2-мерному массиву {{"name","kod"},...}
+Function popup_2array(arr,r1,c1,k,i_element,/*@*/ret_arr,ltitle,ltitle_color,lcolor, n_func, status_message)
   // arr - двумерный массив
   // r1,c1 - координаты левого верхнего угла меню
   //   если r1 меньше нуля - то это вызов из GET-а с переопределением r1 и r2
@@ -15,6 +15,7 @@ Function popup_2array(arr,r1,c1,k,i_element,/*@*/ret_arr,ltitle,ltitle_color,lco
 
   DEFAULT k TO 0, i_element TO 1
   default n_func to ''
+  default status_message to '^<Esc>^ - отказ;  ^<Enter>^ - выбор'
 
   if i_element == 2
     i2 := 1
@@ -50,7 +51,7 @@ Function popup_2array(arr,r1,c1,k,i_element,/*@*/ret_arr,ltitle,ltitle_color,lco
   buf1 := save_maxrow()
 
   i := ascan(arr, {|x| x[i2] == k })
-  status_key("^<Esc>^ - отказ;  ^<Enter>^ - выбор")
+  status_key( status_message )
   if (i := popup(r1,c1,r2,c2,mas_pmt,i,lcolor,.t.,n_func,,ltitle,ltitle_color)) > 0
     ret := arr[i,i2]
     ret_arr := aclone(arr[i])
