@@ -21,7 +21,7 @@ Static err_file := "error.txt"
 
 ***** automatically executes at startup
 proc ErrorSys()
-ErrorBlock( {|e| DefError(e)} )
+ ErrorBlock( {|e| DefError(e)} )
 return
 
 *****
