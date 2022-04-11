@@ -11,6 +11,10 @@ Function menu_reader(get, tmp_mas, type_menu, kod_help, mcolor, fl_esc, titul, t
   // type_menu - тип меню
   // kod_help  - код help'а (по умолчанию -1)
   // mcolor    - цвет меню (по умолчанию "N/BG,W+/N,,,B/W" (cDataCMenu))
+  // fl_esc    - флаг выхода по ESC
+  // titul     - строка заголовка меню
+  // titul_color - цвет заголовка
+  // fl_sort   - флаг сортировки меню
   Local k, buf, r1, c1 := get:col, r2, c2, nr := len(tmp_mas), ;
       nc := 0, t_mas := {}, tk_mas := {}, flag_2 := .f., i, ;
       tmp_color := setcolor(), nc1, tmp_help, tmp_nhelp, lregim,;
