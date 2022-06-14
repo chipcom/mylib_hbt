@@ -1,16 +1,14 @@
-#include "function.ch"
-#include "inkey.ch"
+#include 'function.ch'
+#include 'inkey.ch'
 
 ** Для строк
 
-** 02.06.22
+** 14.06.22
 Function arr2Slist(arr, lWithoutSort)
-  Local i, sList := '', lSort
+  Local i, sList := ''
 
   if valtype(arr) == 'A' .and. len(arr) > 0
-    lSort	:= hb_DefaultValue(lWithoutSort, .f.)
-
-    if ! lWithoutSort
+    if ! hb_DefaultValue(lWithoutSort, .f.)
       asort(arr)
     endif
     for i := 1 to len(arr)
