@@ -1,52 +1,52 @@
 * Функции для работы с CLIPBOARD
-#include "function.ch"
-#include "inkey.ch"
+#include 'function.ch'
+#include 'inkey.ch'
 
 Static clipboard
 
-***** функция установки - вызывается в функции first()
+** функция установки - вызывается в функции first()
 PROCEDURE clipboard()
-clipboard := StackNew()
-// поместить содержимое активного GET'а в clipboard
-SetKey( K_CTRL_F4, {|p, l, v| put_clpbrd(p, l, v)} )
-// вернуть содержимое "верхнего" элемента, помещенного в clipboard
-SetKey( K_SH_F4, {|p, l, v| get_clpbrd(p, l, v)} )
-// включить режим работы с clipboard через меню
-SetKey( K_ALT_F4, {|p, l, v| menu_clpbrd(p, l, v)} )
-return NIL
 
-*
+  clipboard := StackNew()
+  // поместить содержимое активного GET'а в clipboard
+  SetKey( K_CTRL_F4, {|p, l, v| put_clpbrd(p, l, v)} )
+  // вернуть содержимое "верхнего" элемента, помещенного в clipboard
+  SetKey( K_SH_F4, {|p, l, v| get_clpbrd(p, l, v)} )
+  // включить режим работы с clipboard через меню
+  SetKey( K_ALT_F4, {|p, l, v| menu_clpbrd(p, l, v)} )
+  return NIL
 
-****** занести строку в стек
+** занести строку в стек
 Static Function put_clpbrd()
-Local i, s, name_var, type_var, val_var
-if len(GetList) > 0 //проверяем наличие активной Get системы
-  name_var := readvar()         // наименование переменной
-  val_var  := &name_var         // значение переменной
-  type_var := valtype(val_var)  // тип переменной
-  if !empty(name_var) .and. !empty(val_var)
-    do case
-      case type_var == "C"
-        s := alltrim(val_var)
-      case type_var == "D"
-        s := full_date(val_var)
-      case type_var == "N"
-        s := lstr(val_var)
-    endcase
-    if s != NIL
-      i := ascan(clipboard, {|x| x[1] == s } )
-      StackPush( clipboard, {s,type_var} )  // добавить в конец
-      if i > 0   // если уже была такая строка где-то в середине - удаляем
-        Del_Array(clipboard,i)
+  Local i, s, name_var, type_var, val_var
+
+  if len(GetList) > 0 //проверяем наличие активной Get системы
+    name_var := readvar()         // наименование переменной
+    val_var  := &name_var         // значение переменной
+    type_var := valtype(val_var)  // тип переменной
+    if !empty(name_var) .and. !empty(val_var)
+      do case
+        case type_var == 'C'
+          s := alltrim(val_var)
+        case type_var == 'D'
+          s := full_date(val_var)
+        case type_var == 'N'
+          s := lstr(val_var)
+      endcase
+      if s != NIL
+        i := ascan(clipboard, {|x| x[1] == s})
+        StackPush( clipboard, {s, type_var} )  // добавить в конец
+        if i > 0   // если уже была такая строка где-то в середине - удаляем
+          Del_Array(clipboard, i)
+        endif
+        do while len(clipboard) > 10 // оставим не более 10 элементов
+          Del_Array(clipboard, 1)
+        enddo
+        music_m('OK')
       endif
-      do while len(clipboard) > 10 // оставим не более 10 элементов
-        Del_Array(clipboard,1)
-      enddo
-      music_m("OK")
     endif
   endif
-endif
-RETURN NIL
+  RETURN NIL
 
 *
 
