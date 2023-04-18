@@ -1,89 +1,94 @@
-#include "hbgtinfo.ch"
-#include "hbgtwvg.ch"
-#include "function.ch"
+#include 'hbgtinfo.ch'
+#include 'hbgtwvg.ch'
+#include 'function.ch'
 
-*****
-Function put_icon(cTitle,xIcon,is_first)
-DEFAULT is_first TO .t.
-if is_first
-  ANNOUNCE HB_GTSYS
-  REQUEST HB_GT_WVT
-  REQUEST HB_GT_WVT_DEFAULT
-  // запретить закрытие окна (крестиком и по Alt+F4)
-  HB_GtInfo( HB_GTI_CLOSABLE,.F.) // для GT_WVT
-  // hb_gtInfo(HB_GTI_CLOSEMODE, 2 ) // для GT_WVG
-  // Определить сразу окно 25*80 символов, иначе нужна дополнительная настройка
-  SetMode(25,80)
-endif
-if valtype(cTitle) == "C"
-  hb_gtInfo( HB_GTI_WINTITLE,cTitle) // заголовок окна
-endif
-if xIcon != NIL
-  // иконка в левом верхнем углу окна
-  IF hb_isNumeric( xIcon )
-    hb_gtInfo( HB_GTI_ICONRES, xIcon )
-  ELSEIF ( '.ico' $ lower( xIcon ) )
-    hb_gtInfo( HB_GTI_ICONFILE, xIcon )
-  ELSE
-    hb_gtInfo( HB_GTI_ICONRES, xIcon )
+//
+Function put_icon(cTitle, xIcon, is_first)
+
+  DEFAULT is_first TO .t.
+  if is_first
+    ANNOUNCE HB_GTSYS
+    REQUEST HB_GT_WVT
+    REQUEST HB_GT_WVT_DEFAULT
+    // запретить закрытие окна (крестиком и по Alt+F4)
+    HB_GtInfo( HB_GTI_CLOSABLE, .F.) // для GT_WVT
+    // hb_gtInfo(HB_GTI_CLOSEMODE, 2 ) // для GT_WVG
+    // Определить сразу окно 25*80 символов, иначе нужна дополнительная настройка
+    SetMode(25, 80)
   endif
-endif
-return NIL
+  if valtype(cTitle) == 'C'
+    hb_gtInfo( HB_GTI_WINTITLE, cTitle) // заголовок окна
+  endif
+  if xIcon != NIL
+    // иконка в левом верхнем углу окна
+    IF hb_isNumeric( xIcon )
+      hb_gtInfo( HB_GTI_ICONRES, xIcon )
+    ELSEIF ( '.ico' $ lower( xIcon ) )
+      hb_gtInfo( HB_GTI_ICONFILE, xIcon )
+    ELSE
+      hb_gtInfo( HB_GTI_ICONRES, xIcon )
+    endif
+  endif
+  return NIL
 
-*
-
-***** 01.05.13 проверить, запущена ли уже данная задача, если "да" - выход
+// 01.05.13 проверить, запущена ли уже данная задача, если "да" - выход
 Function verify_1_task()
-Local nameTask := StripPath( HB_ArgV(0) )
-if IsExeRunning(nameTask)
-  func_error(10,'Программа "'+upper(nameTask)+'" уже запущена. Запуск второй копии не разрешён!')
-  SET COLOR TO
-  SET CURSOR ON
-  CLS
-  QUIT
-endif
-return NIL
+  Local nameTask := StripPath( HB_ArgV(0) )
 
-*
+  // #ifdef __PLATFORM__Windows
+  #ifdef __PLATFORM__UNIX
+  #else
+    if IsExeRunning(nameTask)
+      func_error(10, 'Программа "' + upper(nameTask) + '" уже запущена. Запуск второй копии не разрешён!')
+      SET COLOR TO
+      SET CURSOR ON
+      CLS
+      QUIT
+    endif
+  #endif
+  return NIL
 
-#pragma BEGINDUMP
+// #ifdef __PLATFORM__Windows
+#ifdef __PLATFORM__UNIX
+#else
+  #pragma BEGINDUMP
 
-#define HB_OS_WIN_32_USED
-#define _WIN32_WINNT   0x0400
-#include <windows.h>
-#include <hbapi.h>
-#include <hbapiitm.h>
-#include <shlobj.h>
+  #define HB_OS_WIN_32_USED
+  #define _WIN32_WINNT   0x0400
+  #include <windows.h>
+  #include <hbapi.h>
+  #include <hbapiitm.h>
+  #include <shlobj.h>
 
-HB_FUNC ( ISEXERUNNING ) // ( cExeNameCaseSensitive ) --> lResult
-{
-  HANDLE hMutex = CreateMutex( NULL, TRUE, ( LPTSTR ) hb_parc( 1 ) );
-  hb_retl( GetLastError() == 183 /*ERROR_ALREADY_EXISTS*/ );
-  ReleaseMutex( hMutex );
-}
+  HB_FUNC ( ISEXERUNNING ) // ( cExeNameCaseSensitive ) --> lResult
+  {
+    HANDLE hMutex = CreateMutex( NULL, TRUE, ( LPTSTR ) hb_parc( 1 ) );
+    hb_retl( GetLastError() == 183 /*ERROR_ALREADY_EXISTS*/ );
+    ReleaseMutex( hMutex );
+  }
 
-HB_FUNC( GETDESKTOPWINDOW )
-{
-  hb_retnl( (LONG)GetDesktopWindow() );
-}
+  HB_FUNC( GETDESKTOPWINDOW )
+  {
+    hb_retnl( (LONG)GetDesktopWindow() );
+  }
 
-HB_FUNC( SHELLEXECUTE )
-{
-  hb_retnl( (LONG) ShellExecute(
-    (HWND) hb_parnl( 1 ) ,
-  (LPCSTR) hb_parcx( 2 ) ,
-  (LPCSTR) hb_parcx( 3 ) ,
-  (LPCSTR) hb_parcx( 4 ) ,  ////////ISNIL(4) ? NULL : (LPCSTR) hb_parcx( 4 ) ,
-  (LPCSTR) hb_parcx( 5 ) ,
+  HB_FUNC( SHELLEXECUTE )
+  {
+    hb_retnl( (LONG) ShellExecute(
+      (HWND) hb_parnl( 1 ) ,
+      (LPCSTR) hb_parcx( 2 ) ,
+      (LPCSTR) hb_parcx( 3 ) ,
+      (LPCSTR) hb_parcx( 4 ) ,  ////////ISNIL(4) ? NULL : (LPCSTR) hb_parcx( 4 ) ,
+      (LPCSTR) hb_parcx( 5 ) ,
            hb_parni( 6 )
-  ) ) ;
-}
-/*
-Parameters
-hwnd [in] Handle to the owner window used for displaying a user interface (UI)
+    ) ) ;
+  }
+  /*
+  Parameters
+  hwnd [in] Handle to the owner window used for displaying a user interface (UI)
           or error messages. This value can be NULL if the operation is not
           associated with a window.
-lpOperation [in] Pointer to a null-terminated string, referred to in this case
+  lpOperation [in] Pointer to a null-terminated string, referred to in this case
           as a verb, that specifies the action to be performed. The set of
           available verbs depends on the particular file or folder. Generally,
           the actions available from an object's shortcut menu are available
@@ -105,20 +110,20 @@ lpOperation [in] Pointer to a null-terminated string, referred to in this case
                  if available. If not, the "open" verb is used. If neither verb
                  is available, the system uses the first verb listed in the
                  registry.
-lpFile [in] Pointer to a null-terminated string that specifies the file or
+  lpFile [in] Pointer to a null-terminated string that specifies the file or
             object on which to execute the specified verb. To specify a Shell
             namespace object, pass the fully qualified parse name. Note that
             not all verbs are supported on all objects. For example, not all
             document types support the "print" verb.
-lpParameters [in] If the lpFile parameter specifies an executable file,
+  lpParameters [in] If the lpFile parameter specifies an executable file,
             lpParameters is a pointer to a null-terminated string that
             specifies the parameters to be passed to the application.
             The format of this string is determined by the verb that is to be
             invoked. If lpFile specifies a document file, lpParameters should
             be NULL.
-lpDirectory [in] Pointer to a null-terminated string that specifies the default
+  lpDirectory [in] Pointer to a null-terminated string that specifies the default
             directory.
-nShowCmd [in] Flags that specify how an application is to be displayed when
+  nShowCmd [in] Flags that specify how an application is to be displayed when
             it is opened. If lpFile specifies a document file, the flag is
             simply passed to the associated application. It is up to the
             application to decide how to handle it.
@@ -153,12 +158,13 @@ nShowCmd [in] Flags that specify how an application is to be displayed when
                             its original size and position. An application
                             should specify this flag when displaying the window
                             for the first time.
-Return Value
-Returns a value greater than 32 if successful, or an error value that is less
-than or equal to 32 otherwise. The following table lists the error values.
-The return value is cast as an HINSTANCE for backward compatibility with
-16-bit Windows applications. It is not a true HINSTANCE, however. The only
-thing that can be done with the returned HINSTANCE is to cast it to an int
-and compare it with the value 32 or one of the error codes below.
-*/
-#pragma ENDDUMP
+  Return Value
+  Returns a value greater than 32 if successful, or an error value that is less
+  than or equal to 32 otherwise. The following table lists the error values.
+  The return value is cast as an HINSTANCE for backward compatibility with
+  16-bit Windows applications. It is not a true HINSTANCE, however. The only
+  thing that can be done with the returned HINSTANCE is to cast it to an int
+  and compare it with the value 32 or one of the error codes below.
+  */
+  #pragma ENDDUMP
+#endif
