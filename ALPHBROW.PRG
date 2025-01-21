@@ -1,7 +1,7 @@
 #include "function.ch"
 #include "inkey.ch"
 
-*****
+// 21.01.25
 FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
                        mfunction, mcolor, titul, titul_color, ;
                        fl_index, fl_noclear, arr_block, ;
@@ -36,6 +36,10 @@ FUNCTION Alpha_Browse( nTop, nLeft, nBottom, nRight, ;
 //              8 - .t. или .f. (по умолчанию .f.) - в случае .t. выводит
 //                  справа от таблицы полосу прокрутки - это уместно, если
 //                  DBF-файл не проиндексирован и заранее отсортирован
+// ДОПОЛНИТЕЛЬНО:
+//  гобальные и приватные определения:
+//    alpha_1_rect - способ выделения, .t. - выделяет только ячейку, .f. - выделяет всю строку
+
 LOCAL lCont := .T., nKey := 256, buf := savescreen(), ;
       t_color := setcolor(), i, j, nsec := seconds(), ;
       fl_mouse, x_mouse := 0, y_mouse := 0, km, fl_rbrd := .f., COUNT, NSTR,;
